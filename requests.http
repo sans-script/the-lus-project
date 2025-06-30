@@ -1,0 +1,80 @@
+### Configuração das variáveis
+@baseUrl = https://equipe-13-backend-trilhas-desafio-5.onrender.com
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IllIQnVLNlBQSnFXMlNJMGxoR1kyIiwiZW1haWwiOiJhbGV4QGVtYWlsLmNvbSIsIm5hbWUiOiJBbGV4YW5kcmUgU2FudG9zIiwiaWF0IjoxNzUxMjUxMzY4LCJleHAiOjE3NTEyNTQ5Njh9.B5ClITCUWUunK1VAHEL5VEljfopWs-dRDbnLI5dQc1Y
+@userId = YHBuK6PPJqW2SI0lhGY2
+
+
+### ===========================================
+### AUTENTICAÇÃO
+### ===========================================
+
+### 1. Registrar novo usuário
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "name": "Alexandre Santos",
+  "email": "alex@email.com",
+  "password": "alex@email.com"
+}
+
+### 2. Fazer login
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "alex@email.com",
+  "password": "alex@email.com"
+}
+
+### ===========================================
+### USUÁRIOS
+### ===========================================
+
+### 3. Listar todos os usuários
+GET {{baseUrl}}/users
+Authorization: Bearer {{token}}
+
+### ===========================================
+### FAVORITOS
+### ===========================================
+
+### 4. Adicionar unidade de saúde aos favoritos
+POST {{baseUrl}}/favorites
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "id": "AAAAAAAAAAAAAAAAAAA",
+    "name": "aaaaaaaaaaaaaaa Nadaaaaaaaaaaaaa De Exames De Média E Alta Complexidade - Pam Diamante",
+    "address": "R. João Luís, 3684 - Centro, São Luís - MA, 65020-904, Brazil",
+    "latitude": -2.5298224,
+    "longitude": -44.2905208,
+    "rating": 3.2,
+    "phoneNumber": "(98) 3198-2200",
+    "website": "http://www.saude.ma.gov.br/",
+    "types": [
+        "hospital",
+        "health",
+        "point_of_interest",
+        "establishment"
+    ],
+    "addedAt": "2025-06-30T00:45:05.258Z",
+    "userId": "YHBuK6PPJqW2SI0lhGY2"
+}
+
+### 5. Listar unidades favoritas de um usuário
+GET {{baseUrl}}/favorites?userId={{userId}}
+Authorization: Bearer {{token}}
+
+### ===========================================
+### UNIDADES DE SAÚDE
+### ===========================================
+
+### 6. Listar todas as unidades de saúde cadastradas
+GET {{baseUrl}}/health-units
+Authorization: Bearer {{token}}
+
+### 7. Remover favorito
+DELETE {{baseUrl}}/favorites/GUvRSkzQdqIv7gsgvSbY
+Authorization: Bearer {{token}}
