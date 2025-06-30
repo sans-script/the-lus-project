@@ -88,7 +88,7 @@ export default function HealthUnitLocator({ apiKey }: HealthUnitLocatorProps) {
       address: favorite.address,
       location: new window.google.maps.LatLng(
         favorite.latitude,
-        favorite.longitude,
+        favorite.longitude
       ),
       rating: favorite.rating,
       phoneNumber: favorite.phoneNumber,
@@ -259,7 +259,7 @@ export default function HealthUnitLocator({ apiKey }: HealthUnitLocatorProps) {
               reject(error);
             }
           },
-          options,
+          options
         );
       };
 
@@ -319,7 +319,7 @@ export default function HealthUnitLocator({ apiKey }: HealthUnitLocatorProps) {
         } catch (locationError) {
           const defaultPos = new window.google.maps.LatLng(
             -2.5318674185944796,
-            -44.300045193733375,
+            -44.300045193733375
           );
           setUserLocation(defaultPos);
           setIsUsingDefaultLocation(true);
@@ -436,7 +436,7 @@ export default function HealthUnitLocator({ apiKey }: HealthUnitLocatorProps) {
         }
       });
     },
-    [],
+    []
   );
 
   const getDistanceMatrix = async (units: HealthUnit[], origin: any) => {
@@ -468,7 +468,7 @@ export default function HealthUnitLocator({ apiKey }: HealthUnitLocatorProps) {
             } else {
               reject(new Error(`Distance Matrix API error: ${status}`));
             }
-          },
+          }
         );
       });
 
@@ -557,7 +557,7 @@ export default function HealthUnitLocator({ apiKey }: HealthUnitLocatorProps) {
 
       animate();
     },
-    [map],
+    [map]
   );
 
   const getPlaceDetails = (placeId: string) => {
@@ -612,13 +612,13 @@ export default function HealthUnitLocator({ apiKey }: HealthUnitLocatorProps) {
 
           setHealthUnits((prev) =>
             prev.map((unit) =>
-              unit.id === placeId ? { ...unit, ...updatedUnit } : unit,
-            ),
+              unit.id === placeId ? { ...unit, ...updatedUnit } : unit
+            )
           );
         } else {
           console.error("Error getting place details:", status);
         }
-      },
+      }
     );
   };
 
@@ -766,7 +766,7 @@ export default function HealthUnitLocator({ apiKey }: HealthUnitLocatorProps) {
           fullscreenControl: false,
           streetViewControl: false,
           styles: getMapStyles(),
-        },
+        }
       );
 
       markers.current.forEach((marker) => {
@@ -827,7 +827,7 @@ export default function HealthUnitLocator({ apiKey }: HealthUnitLocatorProps) {
                   if (map) {
                     const position = new window.google.maps.LatLng(
                       unit.latitude,
-                      unit.longitude,
+                      unit.longitude
                     );
                     map.setCenter(position);
                     map.setZoom(15);
@@ -861,7 +861,7 @@ export default function HealthUnitLocator({ apiKey }: HealthUnitLocatorProps) {
                 if (map) {
                   const position = new window.google.maps.LatLng(
                     unit.latitude,
-                    unit.longitude,
+                    unit.longitude
                   );
                   map.setCenter(position);
                   map.setZoom(15);
@@ -1090,12 +1090,21 @@ export default function HealthUnitLocator({ apiKey }: HealthUnitLocatorProps) {
             className="hidden md:block flex-1 rounded-lg mt-2 mr-2 mb-2"
           />
 
-          {selectedUnit && (
-            <HealthUnitDetails
-              unit={selectedUnit}
-              onClose={() => setSelectedUnit(null)}
-            />
-          )}
+          <div
+            className={
+              "w-full " +
+              (typeof window !== "undefined" && window.innerWidth < 768
+                ? "fixed md:hidden bottom-0 left-0 right-0 z-40"
+                : "")
+            }
+          >
+            {selectedUnit && (
+              <HealthUnitDetails
+                unit={selectedUnit}
+                onClose={() => setSelectedUnit(null)}
+              />
+            )}
+          </div>
         </div>
       </div>
 
