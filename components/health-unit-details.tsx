@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +47,41 @@ export default function HealthUnitDetails({
 }: HealthUnitDetailsProps) {
   const [activeTab, setActiveTab] = useState("info");
   const [photoIndex, setPhotoIndex] = useState(0);
-  const { toggleFavorite, isFavorite } = useFavorites();
+  const [isFav, setIsFav] = useState(false);
+  const { toggleFavorite, checkIfFavorite } = useFavorites();
+
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      const isFavorited = await checkIfFavorite(unit.id);
+      setIsFav(isFavorited);
+    };
+
+    checkFavoriteStatus();
+  }, [unit.id, checkIfFavorite]);
+
+  // Escutar eventos de mudança nos favoritos
+  useEffect(() => {
+    const handleFavoriteChange = async (event: CustomEvent) => {
+      const { favoriteId } = event.detail;
+      if (favoriteId === unit.id) {
+        const newStatus = await checkIfFavorite(unit.id);
+        setIsFav(newStatus);
+      }
+    };
+
+    const handleFavoriteAdded = (event: Event) =>
+      handleFavoriteChange(event as CustomEvent);
+    const handleFavoriteRemoved = (event: Event) =>
+      handleFavoriteChange(event as CustomEvent);
+
+    window.addEventListener("favoriteAdded", handleFavoriteAdded);
+    window.addEventListener("favoriteRemoved", handleFavoriteRemoved);
+
+    return () => {
+      window.removeEventListener("favoriteAdded", handleFavoriteAdded);
+      window.removeEventListener("favoriteRemoved", handleFavoriteRemoved);
+    };
+  }, [unit.id, checkIfFavorite]);
 
   const formatType = (type: string) => {
     const typeMap: Record<string, string> = {
@@ -126,7 +160,7 @@ export default function HealthUnitDetails({
       const destination = `${lat},${lng}`;
       window.open(
         `https://www.google.com/maps/dir/?api=1&destination=${destination}&destination_place_id=${unit.id}`,
-        "_blank",
+        "_blank"
       );
     } catch (error) {
       console.error("Error opening directions:", error);
@@ -257,7 +291,7 @@ export default function HealthUnitDetails({
                                 ![
                                   "point_of_interest",
                                   "establishment",
-                                ].includes(type),
+                                ].includes(type)
                             )
                             .slice(0, 2)
                             .map((type, index) => (
@@ -311,7 +345,9 @@ export default function HealthUnitDetails({
                         <div className="flex items-center gap-1">
                           <Phone className="h-3.5 w-3.5 text-muted-foreground" />
                           <a
-                            href={`tel:${unit.phoneNumber}`}
+                            href={`https://api.whatsapp.com/send?phone=${unit.phoneNumber?.replace(/\D/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="text-sm text-primary hover:underline"
                           >
                             {unit.phoneNumber}
@@ -422,28 +458,20 @@ export default function HealthUnitDetails({
           <div className="absolute inset-x-0 bottom-2 border-t pt-2 md:mr-2 px-4 md:px-0  bg-card flex-shrink-0 ">
             <div className="grid grid-cols-2 gap-2">
               <Button
-                variant={isFavorite(unit.id) ? "default" : "outline"}
-                onClick={() => {
-                  const wasFavorite = isFavorite(unit.id);
-                  toggleFavorite({
-                    id: unit.id,
-                    name: unit.name,
-                    address: unit.address,
-                    location: unit.location,
-                    rating: unit.rating,
-                    phoneNumber: unit.phoneNumber,
-                    website: unit.website,
-                    types: unit.types,
-                  });
+                variant={isFav ? "default" : "outline"}
+                onClick={async () => {
+                  await toggleFavorite(unit);
+                  const newStatus = await checkIfFavorite(unit.id);
+                  setIsFav(newStatus);
                 }}
                 className="flex-1"
               >
                 <Heart
                   className={`h-4 w-4 mr-2 ${
-                    isFavorite(unit.id) ? "fill-current text-red-500" : ""
+                    isFav ? "fill-current text-red-500" : ""
                   }`}
                 />
-                {isFavorite(unit.id) ? "Favoritado" : "Favoritar"}
+                {isFav ? "Favoritado" : "Favoritar"}
               </Button>
               <Button onClick={openDirections} className="flex-1">
                 <Navigation className="h-4 w-4 mr-2" />
