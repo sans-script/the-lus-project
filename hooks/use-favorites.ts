@@ -97,6 +97,11 @@ export function useFavorites() {
       return;
     }
 
+    if (isFavorite(healthUnit.id)) {
+      toast.error("Esta unidade já está nos seus favoritos");
+      return;
+    }
+
     const token = getToken();
     if (!token) {
       toast.error("Token de autenticação não encontrado");
@@ -142,6 +147,12 @@ export function useFavorites() {
       };
 
       setFavorites((prev) => [...prev, localFavorite]);
+
+      // Disparar evento customizado para notificar outros componentes
+      window.dispatchEvent(new CustomEvent('favoriteAdded', {
+        detail: { favoriteId: healthUnit.id }
+      }));
+
       toast.success("Unidade adicionada aos favoritos!");
     } catch (error) {
       toast.error("Erro ao adicionar favorito");
@@ -165,6 +176,12 @@ export function useFavorites() {
       await apiRemoveFavorite(favorite.firebaseId, token);
 
       setFavorites((prev) => prev.filter((fav) => fav.id !== favoriteId));
+
+      // Disparar evento customizado para notificar outros componentes
+      window.dispatchEvent(new CustomEvent('favoriteRemoved', {
+        detail: { favoriteId }
+      }));
+
       toast.success("Favorito removido!");
     } catch (error) {
       toast.error("Erro ao remover favorito");
@@ -173,6 +190,20 @@ export function useFavorites() {
 
   const isFavorite = (healthUnitId: string): boolean => {
     return favorites.some((fav) => fav.id === healthUnitId);
+  };
+
+  const checkIfFavorite = async (healthUnitId: string): Promise<boolean> => {
+    if (!user) return false;
+
+    const token = getToken();
+    if (!token) return false;
+
+    try {
+      const apiFavorites = await apiGetFavorites(user.id, token);
+      return apiFavorites.some((fav) => fav.id === healthUnitId);
+    } catch (error) {
+      return false;
+    }
   };
 
   const toggleFavorite = (healthUnit: HealthUnit) => {
@@ -189,6 +220,7 @@ export function useFavorites() {
     addFavorite,
     removeFavorite,
     isFavorite,
+    checkIfFavorite,
     toggleFavorite,
     loadFavorites,
   };
